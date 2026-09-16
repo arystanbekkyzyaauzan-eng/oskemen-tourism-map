@@ -3,136 +3,430 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>HIDDEN OSKEMEN — Жасырын туристік орындар</title>
+
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
 <style>
-  *{box-sizing:border-box}
-  body{margin:0;font-family:Arial,sans-serif;background:#f4f1e8;color:#24312b}
-  header{padding:28px 20px;text-align:center;background:linear-gradient(135deg,#dfe8df,#eee7d9)}
-  h1{margin:0;font-size:38px;letter-spacing:4px}
-  header p{margin:10px 0 0;font-size:17px}
-  .wrap{max-width:1100px;margin:25px auto;padding:0 16px}
-  .filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
-  button{border:0;border-radius:20px;padding:10px 17px;background:#fff;cursor:pointer;box-shadow:0 2px 8px #0001}
-  button.active{background:#344d43;color:white}
-  .map{position:relative;height:520px;border-radius:22px;overflow:hidden;
-       background:
-       linear-gradient(30deg,#dbe7d9 12%,transparent 12.5%,transparent 87%,#dbe7d9 87.5%),
-       linear-gradient(150deg,#dbe7d9 12%,transparent 12.5%,transparent 87%,#dbe7d9 87.5%),
-       #eef2e9;
-       background-size:90px 90px;
-       box-shadow:0 5px 20px #0002}
-  .river{position:absolute;left:45%;top:-10%;width:18%;height:125%;background:#b8d9df;transform:rotate(12deg);border-radius:50%}
-  .pin{position:absolute;width:34px;height:34px;border-radius:50% 50% 50% 0;
-       transform:rotate(-45deg);background:#b34f4f;border:3px solid white;box-shadow:0 3px 8px #0004;cursor:pointer}
-  .pin span{display:block;transform:rotate(45deg);color:white;font-weight:bold;text-align:center;line-height:28px}
-  .legend{position:absolute;left:15px;bottom:15px;background:#ffffffdd;padding:12px 15px;border-radius:14px;font-size:13px}
-  .card{margin-top:20px;background:white;border-radius:20px;padding:24px;box-shadow:0 4px 16px #0001}
-  .card h2{margin-top:0}
-  .tag{display:inline-block;background:#e7eee8;padding:6px 10px;border-radius:12px;font-size:13px}
-  .note{font-size:13px;color:#65716b}
-  .hero-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:18px}
-  .action{display:inline-block;text-decoration:none;color:#24312b;background:#fff;padding:11px 16px;border-radius:18px;box-shadow:0 2px 8px #0001;font-weight:600}
-  .action.primary{background:#344d43;color:#fff}
-  .details{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:16px}
-  .detail{background:#f5f7f3;border-radius:14px;padding:12px}
-  .detail b{display:block;margin-bottom:5px}
-  .qrbox{margin-top:18px;padding:18px;border:2px dashed #c9d4cb;border-radius:18px;text-align:center;background:#fbfcfa}
-  #qrcode{margin:12px auto;width:max-content}
-  footer{text-align:center;padding:25px;color:#68736d}
+*{box-sizing:border-box}
+
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#f4f1e8;
+    color:#24312b;
+}
+
+header{
+    padding:28px 20px;
+    text-align:center;
+    background:linear-gradient(135deg,#dfe8df,#eee7d9);
+}
+
+h1{
+    margin:0;
+    font-size:38px;
+    letter-spacing:4px;
+}
+
+header p{
+    margin:10px 0 0;
+    font-size:17px;
+}
+
+.wrap{
+    max-width:1100px;
+    margin:25px auto;
+    padding:0 16px;
+}
+
+.filters{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:18px;
+}
+
+button{
+    border:0;
+    border-radius:20px;
+    padding:10px 17px;
+    background:#fff;
+    cursor:pointer;
+    box-shadow:0 2px 8px #0001;
+}
+
+button.active{
+    background:#344d43;
+    color:white;
+}
+
+#map{
+    height:560px;
+    width:100%;
+    border-radius:22px;
+    overflow:hidden;
+    box-shadow:0 5px 20px #0002;
+}
+
+.card{
+    margin-top:20px;
+    background:white;
+    border-radius:20px;
+    padding:24px;
+    box-shadow:0 4px 16px #0001;
+}
+
+.card h2{
+    margin-top:0;
+}
+
+.tag{
+    display:inline-block;
+    background:#e7eee8;
+    padding:6px 10px;
+    border-radius:12px;
+    font-size:13px;
+}
+
+.details{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:10px;
+    margin-top:16px;
+}
+
+.detail{
+    background:#f5f7f3;
+    border-radius:14px;
+    padding:12px;
+}
+
+.detail b{
+    display:block;
+    margin-bottom:5px;
+}
+
+.note{
+    font-size:13px;
+    color:#65716b;
+}
+
+footer{
+    text-align:center;
+    padding:25px;
+    color:#68736d;
+}
+
+.leaflet-popup-content{
+    font-size:15px;
+    line-height:1.5;
+}
+
+.popup-title{
+    font-size:18px;
+    font-weight:bold;
+    margin-bottom:6px;
+}
 </style>
 </head>
+
 <body>
+
 <header>
-  <h1>HIDDEN OSKEMEN</h1>
-  <p>Өскеменнің жасырын және ерекше туристік орындары</p>
-  <div class="hero-actions">
-    <a class="action primary" href="#map">🗺️ Картаны көру</a>
-    <a class="action" href="#info">📖 Орындар туралы</a>
-  </div>
+
+<h1>HIDDEN OSKEMEN</h1>
+
+<p>Өскеменнің жасырын және ерекше туристік орындары</p>
+
 </header>
 
 <div class="wrap">
-  <div class="filters">
-    <button class="active" onclick="filterPlaces('all',this)">Барлығы</button>
-    <button onclick="filterPlaces('nature',this)">🌿 Табиғат</button>
-    <button onclick="filterPlaces('history',this)">🏛️ Тарих</button>
-    <button onclick="filterPlaces('culture',this)">🏡 Мәдениет</button>
-  </div>
 
-  <div class="map" id="map">
-    <div class="river"></div>
-    <div class="legend">📍 Нүктені басыңыз — орын туралы ақпарат ашылады</div>
-  </div>
+<div class="filters">
 
-  <div class="card" id="info">
-    <h2>🗺️ HIDDEN OSKEMEN</h2>
-    <p>Картадағы қызыл нүктелердің бірін таңдаңыз.</p>
-    <div class="details">
-      <div class="detail"><b>📍 10 орын</b>Өскеменнің ерекше нүктелері</div>
-      <div class="detail"><b>🌿 3 бағыт</b>Табиғат, тарих және мәдениет</div>
-      <div class="detail"><b>📱 Интерактивті</b>Нүктені басып ақпаратты ашыңыз</div>
-    </div>
-    <div class="qrbox">
-      <b>📲 Жобаны QR-код арқылы ашу</b>
-      <div id="qrcode"></div>
-      <p class="note">Сайт интернетке жарияланғаннан кейін QR-код осы картаның сілтемесін ашады.</p>
-    </div>
-  </div>
+<button class="active" onclick="filterPlaces('all',this)">
+Барлығы
+</button>
+
+<button onclick="filterPlaces('nature',this)">
+🌿 Табиғат
+</button>
+
+<button onclick="filterPlaces('history',this)">
+🏛️ Тарих
+</button>
+
+<button onclick="filterPlaces('culture',this)">
+🏡 Мәдениет
+</button>
+
 </div>
 
-<footer>Жоба: «Менің қаламдағы жасырын туристік орындар»</footer>
+<div id="map"></div>
+
+<div class="card" id="info">
+
+<h2>🗺️ HIDDEN OSKEMEN</h2>
+
+<p>
+Картадағы белгішелердің бірін басып,
+Өскеменнің ерекше орындары туралы ақпарат алыңыз.
+</p>
+
+<div class="details">
+
+<div class="detail">
+<b>📍 10 орын</b>
+Өскеменнің ерекше нүктелері
+</div>
+
+<div class="detail">
+<b>🌿 3 бағыт</b>
+Табиғат, тарих және мәдениет
+</div>
+
+<div class="detail">
+<b>📱 Интерактивті</b>
+Картадағы нүктелерді басуға болады
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<footer>
+Жоба: «Менің қаламдағы жасырын туристік орындар»
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
+
+const map = L.map('map').setView([50.2839, 57.1669], 12);
+
+L.tileLayer(
+'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+{
+    maxZoom:19,
+    attribution:'© OpenStreetMap contributors'
+}
+).addTo(map);
+
+
+/* 10 туристік орын */
+
 const places = [
- {id:1,name:"Орёл тауы",cat:"nature",x:18,y:18,icon:"⛰️",
-  text:"Өскемен маңындағы табиғи биіктік. Жоба картасында табиғат пен панорамалық көрініс бағыты ретінде көрсетіледі."},
- {id:2,name:"Поганка — Комендантка",cat:"history",x:36,y:30,icon:"🌿",
-  text:"Қала тарихымен байланысты ерекше қалалық орын. Халық арасында «Поганка» атауымен белгілі аумақ."},
- {id:3,name:"Көпес Рафиковтың үйі",cat:"history",x:62,y:18,icon:"🏛️",
-  text:"Өскеменнің сауда тарихымен байланысты тарихи ғимарат. Карточкаға оның тарихы мен қазіргі фотосын енгізуге болады."},
- {id:4,name:"Ретро-музей",cat:"history",x:78,y:36,icon:"🚗",
-  text:"Сол жағалау кешені аумағындағы тарихи техника экспозициясы. Келесі нұсқада нақты жұмыс уақыты мен фотолар қосылады."},
- {id:5,name:"Өскемен бекінісінің қорғаны",cat:"history",x:27,y:57,icon:"🏰",
-  text:"Қаланың қалыптасу тарихымен байланысты тарихи нысан. Қауіпсіз көруге болатын бөлігі ғана маршрутқа енгізіледі."},
- {id:6,name:"Аблакеткадағы байқау алаңы",cat:"nature",x:12,y:76,icon:"⛰️",
-  text:"Аблакетка аумағындағы панорамалық нүкте. Қаланың айналасындағы табиғи ландшафтты тамашалауға мүмкіндік береді."},
- {id:7,name:"Этноауыл",cat:"culture",x:55,y:70,icon:"🏡",
-  text:"Сол жағалаудағы этнографиялық кеңістік. Әртүрлі халықтардың дәстүрлі үйлері мен мәдени элементтері таныстырылады."},
- {id:8,name:"Стрелка",cat:"nature",x:73,y:67,icon:"🌊",
-  text:"Өзендер тоғысатын ерекше қалалық кеңістік. Фото және география бағыты үшін ыңғайлы нүкте."},
- {id:9,name:"Меновное көлі — Сол жағалау кешені",cat:"nature",x:86,y:78,icon:"🌊",
-  text:"Демалыс, туризм және спорт бағыттарымен байланысты жағалау аймағы."},
- {id:10,name:"Шешек тауы",cat:"nature",x:45,y:88,icon:"⛰️",
-  text:"Өскемен маңындағы табиғи бағыт. Картада панорама және серуендеу бағыты ретінде көрсетіледі."}
+
+{
+id:1,
+name:"Орёл тауы",
+cat:"nature",
+lat:50.285,
+lng:57.105,
+icon:"⛰️",
+text:"Өскемен маңындағы табиғи биіктік. Панорамалық көрініс пен табиғатты тамашалауға болатын бағыт."
+},
+
+{
+id:2,
+name:"Поганка — Комендантка",
+cat:"history",
+lat:50.276,
+lng:57.153,
+icon:"🌿",
+text:"Қала тарихымен байланысты ерекше қалалық орын. Халық арасында «Поганка» атауымен белгілі аумақ."
+},
+
+{
+id:3,
+name:"Көпес Рафиковтың үйі",
+cat:"history",
+lat:50.286,
+lng:57.168,
+icon:"🏛️",
+text:"Өскеменнің сауда тарихымен байланысты тарихи ғимарат."
+},
+
+{
+id:4,
+name:"Ретро-музей",
+cat:"history",
+lat:50.293,
+lng:57.177,
+icon:"🚗",
+text:"Тарихи техника экспозициясымен байланысты ерекше орын."
+},
+
+{
+id:5,
+name:"Өскемен бекінісінің тарихи аумағы",
+cat:"history",
+lat:50.282,
+lng:57.164,
+icon:"🏰",
+text:"Қаланың қалыптасу тарихымен байланысты тарихи аумақ."
+},
+
+{
+id:6,
+name:"Аблакеткадағы байқау алаңы",
+cat:"nature",
+lat:50.245,
+lng:57.095,
+icon:"⛰️",
+text:"Аблакетка аумағындағы панорамалық нүкте. Қаланы және табиғи ландшафтты тамашалауға мүмкіндік береді."
+},
+
+{
+id:7,
+name:"Этноауыл",
+cat:"culture",
+lat:50.300,
+lng:57.185,
+icon:"🏡",
+text:"Этнографиялық кеңістік. Дәстүрлі мәдениет пен ұлттық элементтерді таныстыруға арналған орын."
+},
+
+{
+id:8,
+name:"Стрелка",
+cat:"nature",
+lat:50.300,
+lng:57.200,
+icon:"🌊",
+text:"Өзендер тоғысатын ерекше қалалық кеңістік. Фотоға түсіп, табиғатты тамашалауға ыңғайлы."
+},
+
+{
+id:9,
+name:"Меновное көлі — Сол жағалау",
+cat:"nature",
+lat:50.315,
+lng:57.215,
+icon:"🌊",
+text:"Демалыс, табиғат және серуендеу бағыттарымен байланысты жағалау аймағы."
+},
+
+{
+id:10,
+name:"Шешек тауы",
+cat:"nature",
+lat:50.235,
+lng:57.145,
+icon:"⛰️",
+text:"Өскемен маңындағы табиғи бағыт. Панорамалық көрініс пен серуендеуге арналған орын."
+}
+
 ];
 
-function render(list){
- const map=document.getElementById('map');
- document.querySelectorAll('.pin').forEach(e=>e.remove());
- list.forEach(p=>{
-   const el=document.createElement('div');
-   el.className='pin';
-   el.style.left=p.x+'%'; el.style.top=p.y+'%';
-   el.innerHTML='<span>'+p.id+'</span>';
-   el.title=p.name;
-   el.onclick=()=>showPlace(p);
-   map.appendChild(el);
- });
+
+let markers = [];
+
+
+function categoryName(cat){
+
+if(cat==="nature") return "🌿 Табиғат";
+
+if(cat==="history") return "🏛️ Тарих";
+
+return "🏡 Мәдениет";
+
 }
+
+
 function showPlace(p){
- document.getElementById('info').innerHTML=
- `<span class="tag">${p.icon} ${p.cat==="nature"?"Табиғат":p.cat==="history"?"Тарих":"Мәдениет"}</span>
-  <h2>${p.id}. ${p.name}</h2>
-  <p>${p.text}</p>
-  <p class="note">📍 Нақты координат пен маршрут келесі кезеңде тексеріліп енгізіледі.</p>`;
- document.getElementById('info').scrollIntoView({behavior:'smooth',block:'nearest'});
+
+document.getElementById("info").innerHTML = `
+
+<span class="tag">
+${p.icon} ${categoryName(p.cat)}
+</span>
+
+<h2>${p.id}. ${p.name}</h2>
+
+<p>${p.text}</p>
+
+<p class="note">
+📍 Картадағы нүкте көрсетілген орынның шамамен орналасуын білдіреді.
+</p>
+
+`;
+
 }
-function filterPlaces(cat,btn){
- document.querySelectorAll('.filters button').forEach(b=>b.classList.remove('active'));
- btn.classList.add('active');
- render(cat==='all'?places:places.filter(p=>p.cat===cat));
+
+
+function renderPlaces(list){
+
+markers.forEach(marker => map.removeLayer(marker));
+
+markers = [];
+
+list.forEach(p => {
+
+const marker = L.marker([p.lat,p.lng]).addTo(map);
+
+marker.bindPopup(`
+
+<div class="popup-title">
+${p.icon} ${p.name}
+</div>
+
+<div>
+${p.text}
+</div>
+
+<br>
+
+<b>
+${categoryName(p.cat)}
+</b>
+
+`);
+
+marker.on("click",function(){
+
+showPlace(p);
+
+});
+
+markers.push(marker);
+
+});
+
 }
-render(places);
+
+
+function filterPlaces(cat,button){
+
+document
+.querySelectorAll(".filters button")
+.forEach(b => b.classList.remove("active"));
+
+button.classList.add("active");
+
+if(cat==="all"){
+
+renderPlaces(places);
+
+}else{
+
+renderPlaces(
+places.filter(p => p.cat===cat)
+);
+
+}
+
+}
+
+
+renderPlaces(places);
+
 </script>
+
 </body>
 </html>
