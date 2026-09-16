@@ -171,169 +171,209 @@
 
   // Жасырын туристік орындар
   // Координаттар жобалық картада шамамен көрсетілген.
-  const places = [
+  
+const places = [
 
-    {
-      id: 1,
-      name: "Орёл тауы",
-      category: "nature",
-      icon: "⛰️",
-      lat: 49.991,
-      lng: 82.580,
-      description: "Өскемен маңындағы табиғи көріністі тамашалауға болатын ерекше орын."
-    },
+  {
+    id: 1,
+    name: "Орёл тауы",
+    category: "nature",
+    icon: "⛰️",
+    lat: 49.991,
+    lng: 82.580,
+    address: "Өскемен қаласы маңы",
+    feature: "Табиғи ландшафты және биіктіктен көрінетін көрінісімен қызықты.",
+    history: "Тау аймағы табиғатты тамашалауға және серуендеуге қолайлы.",
+    fact: "📍 Картадағы орналасуы жобалық түрде көрсетілген."
+  },
 
-    {
-      id: 2,
-      name: "Поганка — Комендантка",
-      category: "history",
-      icon: "🌿",
-      lat: 49.944,
-      lng: 82.600,
-      description: "Қаланың тарихи өткенімен байланысты қызықты аумақ."
-    },
+  {
+    id: 2,
+    name: "Поганка — Комендантка",
+    category: "history",
+    icon: "🌿",
+    lat: 49.944,
+    lng: 82.600,
+    address: "Өскемен қаласы маңы",
+    feature: "Қаланың тарихи өткенімен байланысты жергілікті нысан.",
+    history: "Бұл атаулар Өскеменнің тарихи топонимиясымен байланысты.",
+    fact: "📍 Нақты мекенжайы ашық деректерде көрсетілмеген."
+  },
 
-    {
-      id: 3,
-      name: "Көпес Рафиковтың үйі",
-      category: "history",
-      icon: "🏛️",
-      lat: 49.950,
-      lng: 82.626,
-      description: "Өскеменнің тарихи сәулетін танытатын көне ғимараттардың бірі."
-    },
+  {
+    id: 3,
+    name: "Көпес Рафиковтың үйі",
+    category: "history",
+    icon: "🏛️",
+    lat: 49.950,
+    lng: 82.626,
+    address: "М. Горький көшесі, 50",
+    feature: "Тарихи және мәдени ескерткіш.",
+    history: "XIX ғасырдың соңында Ахтам Рафиков салдырған екі қабатты үйде дүкен және көпестің отбасы орналасқан.",
+    fact: "⭐ Ғимарат 1984 жылы мемлекеттік қорғауға алынған."
+  },
 
-    {
-      id: 4,
-      name: "Ретро-музей",
-      category: "history",
-      icon: "🚗",
-      lat: 49.964,
-      lng: 82.604,
-      description: "Өткен дәуірдегі көлік және тұрмыс мәдениетімен танысуға мүмкіндік беретін орын."
-    },
+  {
+    id: 4,
+    name: "Ретро-музей",
+    category: "history",
+    icon: "🚗",
+    lat: 49.964,
+    lng: 82.604,
+    address: "Сол жағалау саябағы аумағы",
+    feature: "Өткен ғасырдағы тарихи техникалар экспозициясы.",
+    history: "Музей 2026 жылғы 29 тамызда ашылды.",
+    fact: "🚗 Экспозицияда 30-ға жуық тарихи техника бар."
+  },
 
-    {
-      id: 5,
-      name: "Өскемен бекінісінің қорғаны",
-      category: "history",
-      icon: "🏰",
-      lat: 49.948,
-      lng: 82.622,
-      description: "Қаланың тарихи қалыптасу кезеңін еске түсіретін орын."
-    },
+  {
+    id: 5,
+    name: "Өскемен бекінісінің қорғаны",
+    category: "history",
+    icon: "🏰",
+    lat: 49.948,
+    lng: 82.622,
+    address: "Өскемен қаласының тарихи орталығы",
+    feature: "Қаланың пайда болу тарихымен байланысты тарихи орын.",
+    history: "Өскемен бекінісі 1720 жылы негізі қаланған. Бекініс топырақ үйінділері мен ормен қорғалған.",
+    fact: "🏰 1765 жылы бекініс маңында айырбас сарайы салынған."
+  },
 
-    {
-      id: 6,
-      name: "Аблакеткадағы байқау алаңы",
-      category: "nature",
-      icon: "⛰️",
-      lat: 49.915,
-      lng: 82.570,
-      description: "Қаланы биіктен бақылауға және табиғатты тамашалауға болатын орын."
-    },
+  {
+    id: 6,
+    name: "Аблакеткадағы байқау алаңы",
+    category: "nature",
+    icon: "⛰️",
+    lat: 49.915,
+    lng: 82.690,
+    address: "Аблакетка ауданы, Өскемен маңы",
+    feature: "Қаланың табиғи көрінісін биіктен бақылауға мүмкіндік беретін орын.",
+    history: "Аблакетка атауы Өскемен маңындағы тау және елді мекен атауларында кездеседі.",
+    fact: "🌄 Аблакетка тауының биіктігі шамамен 1136 м деп көрсетіледі."
+  },
 
-    {
-      id: 7,
-      name: "Этноауыл",
-      category: "culture",
-      icon: "🏡",
-      lat: 49.978,
-      lng: 82.648,
-      description: "Қазақ халқының дәстүрі мен ұлттық мәдениетін таныстыратын мәдени кеңістік."
-    },
+  {
+    id: 7,
+    name: "Этноауыл",
+    category: "culture",
+    icon: "🏡",
+    lat: 49.978,
+    lng: 82.648,
+    address: "Қаныш Сәтпаев даңғылы, 79А",
+    feature: "Ұлттық мәдениет пен дәстүрді таныстыратын этнографиялық кеңістік.",
+    history: "Этнографиялық нысандар Шығыс Қазақстан халықтарының дәстүрлі тұрмысын көрсетуге бағытталған.",
+    fact: "🏡 Дәстүрлі үйлер мен этнографиялық элементтерді көруге болады."
+  },
 
-    {
-      id: 8,
-      name: "Стрелка",
-      category: "nature",
-      icon: "🌊",
-      lat: 49.981,
-      lng: 82.615,
-      description: "Өскемендегі өзендер тоғысатын, серуендеуге қолайлы ерекше орын."
-    },
+  {
+    id: 8,
+    name: "Стрелка",
+    category: "nature",
+    icon: "🌊",
+    lat: 49.981,
+    lng: 82.615,
+    address: "Өскемен қаласы, өзендер тоғысатын аумақ",
+    feature: "Өзен жағасындағы ерекше табиғи-ландшафтық орын.",
+    history: "Стрелка — Өскеменнің танымал географиялық орындарының бірі.",
+    fact: "🌊 Бұл аумақ қала тұрғындары серуендейтін орын ретінде белгілі."
+  },
 
-    {
-      id: 9,
-      name: "Меновное көлі — Сол жағалау кешені",
-      category: "nature",
-      icon: "🌊",
-      lat: 50.010,
-      lng: 82.720,
-      description: "Табиғат аясында демалып, қаланың сыртқы көрінісін тамашалауға болатын орын."
-    },
+  {
+    id: 9,
+    name: "Меновное көлі — Сол жағалау кешені",
+    category: "nature",
+    icon: "🌊",
+    lat: 50.010,
+    lng: 82.720,
+    address: "Өскеменнің сол жағалауы маңы",
+    feature: "Табиғат аясында демалуға арналған аумақ.",
+    history: "Сол жағалау аумағында облыстық сәулет-этнографиялық және табиғи-ландшафтық музей-қорығының нысандары орналасқан.",
+    fact: "🌿 Мұнда табиғи және мәдени нысандарды бірге тамашалауға болады."
+  },
 
-    {
-      id: 10,
-      name: "Шешек тауы",
-      category: "nature",
-      icon: "⛰️",
-      lat: 49.900,
-      lng: 82.670,
-      description: "Табиғи ландшафтымен ерекшеленетін, зерттеуге қызықты орын."
-    }
+  {
+    id: 10,
+    name: "Шешек тауы",
+    category: "nature",
+    icon: "⛰️",
+    lat: 49.900,
+    lng: 82.670,
+    address: "Өскемен қаласы маңы",
+    feature: "Табиғи ландшафтымен ерекшеленетін тау аймағы.",
+    history: "Өскемен маңындағы табиғи аумақтардың бірі ретінде жобалық картаға енгізілді.",
+    fact: "📍 Нақты мекенжайы ашық деректерде көрсетілмеген."
+  }
 
-  ];
-
+];
 
   let markers = [];
 
 
   // Қызыл маркер жасау
-  function createMarker(place, number) {
+ function createMarker(place, number) {
 
-    const icon = L.divIcon({
-      className: '',
-      html: `
-        <div class="red-marker">
-          <span>${number}</span>
-        </div>
-      `,
-      iconSize: [34, 34],
-      iconAnchor: [17, 34],
-      popupAnchor: [0, -34]
-    });
-
-    const marker = L.marker(
-      [place.lat, place.lng],
-      { icon: icon }
-    );
-
-
-    marker.bindTooltip(
-      `${place.icon} ${place.name}`,
-      {
-        permanent: true,
-        direction: 'top',
-        offset: [0, -28]
-      }
-    );
-
-
-    marker.bindPopup(`
-      <div>
-        <div class="popup-title">
-          ${place.icon} ${place.name}
-        </div>
-
-        <div class="popup-category">
-          ${getCategoryName(place.category)}
-        </div>
-
-        <div class="popup-text">
-          ${place.description}
-        </div>
-
-        <br>
-
-        <small>
-          📍 Жобалық картадағы шамамен орналасуы
-        </small>
+  const icon = L.divIcon({
+    className: '',
+    html: `
+      <div class="red-marker">
+        <span>${number}</span>
       </div>
-    `);
+    `,
+    iconSize: [34, 34],
+    iconAnchor: [17, 34],
+    popupAnchor: [0, -34]
+  });
 
-    return marker;
-  }
+  const marker = L.marker(
+    [place.lat, place.lng],
+    { icon: icon }
+  );
+
+  marker.bindTooltip(
+    `${place.icon} ${place.name}`,
+    {
+      permanent: true,
+      direction: 'top',
+      offset: [0, -28]
+    }
+  );
+
+  marker.bindPopup(`
+    <div style="min-width:230px; max-width:300px; font-family:Arial,sans-serif;">
+
+      <div style="font-size:19px; font-weight:bold; color:#355c4a; margin-bottom:10px;">
+        ${place.icon} ${place.name}
+      </div>
+
+      <div style="background:#e8eee9; padding:6px 9px; border-radius:8px; margin-bottom:10px;">
+        <b>${getCategoryName(place.category)}</b>
+      </div>
+
+      <div style="margin-bottom:8px;">
+        📍 <b>Мекенжайы:</b><br>
+        ${place.address}
+      </div>
+
+      <div style="margin-bottom:8px;">
+        ⭐ <b>Ерекшелігі:</b><br>
+        ${place.feature}
+      </div>
+
+      <div style="margin-bottom:8px;">
+        🕰️ <b>Қысқаша тарихы:</b><br>
+        ${place.history}
+      </div>
+
+      <div>
+        💡 <b>Қызықты факт:</b><br>
+        ${place.fact}
+      </div>
+
+    </div>
+  `);
+
+  return marker;
+}
 
 
   function getCategoryName(category) {
