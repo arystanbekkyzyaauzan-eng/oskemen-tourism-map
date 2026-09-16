@@ -1,430 +1,405 @@
 <!DOCTYPE html>
 <html lang="kk">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>HIDDEN OSKEMEN — Жасырын туристік орындар</title>
+  <title>Өскеменнің жасырын туристік орындары</title>
 
-<link rel="stylesheet"
-href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <link rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
-<style>
-*{box-sizing:border-box}
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-body{
-    margin:0;
-    font-family:Arial,sans-serif;
-    background:#f4f1e8;
-    color:#24312b;
-}
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f1ea;
+      color: #263238;
+    }
 
-header{
-    padding:28px 20px;
-    text-align:center;
-    background:linear-gradient(135deg,#dfe8df,#eee7d9);
-}
+    header {
+      background: linear-gradient(135deg, #355c4a, #668b72);
+      color: white;
+      padding: 25px 20px;
+      text-align: center;
+    }
 
-h1{
-    margin:0;
-    font-size:38px;
-    letter-spacing:4px;
-}
+    header h1 {
+      margin: 0 0 8px;
+      font-size: 30px;
+    }
 
-header p{
-    margin:10px 0 0;
-    font-size:17px;
-}
+    header p {
+      margin: 0;
+      font-size: 16px;
+    }
 
-.wrap{
-    max-width:1100px;
-    margin:25px auto;
-    padding:0 16px;
-}
+    .controls {
+      padding: 15px;
+      text-align: center;
+      background: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
 
-.filters{
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-    margin-bottom:18px;
-}
+    button {
+      border: none;
+      padding: 10px 16px;
+      margin: 4px;
+      border-radius: 20px;
+      cursor: pointer;
+      background: #e8eee9;
+      color: #274536;
+      font-size: 14px;
+    }
 
-button{
-    border:0;
-    border-radius:20px;
-    padding:10px 17px;
-    background:#fff;
-    cursor:pointer;
-    box-shadow:0 2px 8px #0001;
-}
+    button:hover {
+      background: #cbdccf;
+    }
 
-button.active{
-    background:#344d43;
-    color:white;
-}
+    button.active {
+      background: #355c4a;
+      color: white;
+    }
 
-#map{
-    height:560px;
-    width:100%;
-    border-radius:22px;
-    overflow:hidden;
-    box-shadow:0 5px 20px #0002;
-}
+    #map {
+      width: 100%;
+      height: 650px;
+    }
 
-.card{
-    margin-top:20px;
-    background:white;
-    border-radius:20px;
-    padding:24px;
-    box-shadow:0 4px 16px #0001;
-}
+    .red-marker {
+      background: #d62828;
+      color: white;
+      width: 34px;
+      height: 34px;
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+      border: 3px solid white;
+      box-shadow: 0 2px 7px rgba(0,0,0,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
 
-.card h2{
-    margin-top:0;
-}
+    .red-marker span {
+      transform: rotate(45deg);
+    }
 
-.tag{
-    display:inline-block;
-    background:#e7eee8;
-    padding:6px 10px;
-    border-radius:12px;
-    font-size:13px;
-}
+    .leaflet-tooltip {
+      font-weight: bold;
+      font-size: 13px;
+      padding: 6px 9px;
+      border-radius: 8px;
+    }
 
-.details{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-    gap:10px;
-    margin-top:16px;
-}
+    .popup-title {
+      font-size: 17px;
+      font-weight: bold;
+      color: #355c4a;
+      margin-bottom: 7px;
+    }
 
-.detail{
-    background:#f5f7f3;
-    border-radius:14px;
-    padding:12px;
-}
+    .popup-category {
+      display: inline-block;
+      background: #e8eee9;
+      padding: 4px 8px;
+      border-radius: 10px;
+      font-size: 12px;
+      margin-bottom: 7px;
+    }
 
-.detail b{
-    display:block;
-    margin-bottom:5px;
-}
+    .popup-text {
+      line-height: 1.5;
+    }
 
-.note{
-    font-size:13px;
-    color:#65716b;
-}
+    footer {
+      text-align: center;
+      padding: 18px;
+      background: #355c4a;
+      color: white;
+      font-size: 14px;
+    }
 
-footer{
-    text-align:center;
-    padding:25px;
-    color:#68736d;
-}
+    @media (max-width: 600px) {
+      header h1 {
+        font-size: 22px;
+      }
 
-.leaflet-popup-content{
-    font-size:15px;
-    line-height:1.5;
-}
-
-.popup-title{
-    font-size:18px;
-    font-weight:bold;
-    margin-bottom:6px;
-}
-</style>
+      #map {
+        height: 550px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
 <header>
-
-<h1>HIDDEN OSKEMEN</h1>
-
-<p>Өскеменнің жасырын және ерекше туристік орындары</p>
-
+  <h1>📍 Өскеменнің жасырын туристік орындары</h1>
+  <p>Көпшілік біле бермейтін ерекше орындарды бірге зерттейік!</p>
 </header>
 
-<div class="wrap">
-
-<div class="filters">
-
-<button class="active" onclick="filterPlaces('all',this)">
-Барлығы
-</button>
-
-<button onclick="filterPlaces('nature',this)">
-🌿 Табиғат
-</button>
-
-<button onclick="filterPlaces('history',this)">
-🏛️ Тарих
-</button>
-
-<button onclick="filterPlaces('culture',this)">
-🏡 Мәдениет
-</button>
-
+<div class="controls">
+  <button class="active" onclick="filterPlaces('all', this)">Барлығы</button>
+  <button onclick="filterPlaces('nature', this)">🌿 Табиғат</button>
+  <button onclick="filterPlaces('history', this)">🏛️ Тарих</button>
+  <button onclick="filterPlaces('culture', this)">🏡 Мәдениет</button>
 </div>
 
 <div id="map"></div>
 
-<div class="card" id="info">
-
-<h2>🗺️ HIDDEN OSKEMEN</h2>
-
-<p>
-Картадағы белгішелердің бірін басып,
-Өскеменнің ерекше орындары туралы ақпарат алыңыз.
-</p>
-
-<div class="details">
-
-<div class="detail">
-<b>📍 10 орын</b>
-Өскеменнің ерекше нүктелері
-</div>
-
-<div class="detail">
-<b>🌿 3 бағыт</b>
-Табиғат, тарих және мәдениет
-</div>
-
-<div class="detail">
-<b>📱 Интерактивті</b>
-Картадағы нүктелерді басуға болады
-</div>
-
-</div>
-
-</div>
-
-</div>
-
 <footer>
-Жоба: «Менің қаламдағы жасырын туристік орындар»
+  © 2026 «Менің қаламдағы жасырын туристік орындар» жобасы
 </footer>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
 
-const map = L.map('map').setView([49.9483, 82.6279], 12);
+  // Өскемен қаласының орталығы
+  const map = L.map('map').setView([49.9483, 82.6279], 12);
 
-L.tileLayer(
-'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-{
-    maxZoom:19,
-    attribution:'© OpenStreetMap contributors'
-}
-).addTo(map);
+  // OpenStreetMap картасы
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
 
 
-/* 10 туристік орын */
+  // Жасырын туристік орындар
+  // Координаттар жобалық картада шамамен көрсетілген.
+  const places = [
 
-const places = [
+    {
+      id: 1,
+      name: "Орёл тауы",
+      category: "nature",
+      icon: "⛰️",
+      lat: 49.991,
+      lng: 82.580,
+      description: "Өскемен маңындағы табиғи көріністі тамашалауға болатын ерекше орын."
+    },
 
-{
-id:1,
-name:"Орёл тауы",
-cat:"nature",
-lat:50.285,
-lng:57.105,
-icon:"⛰️",
-text:"Өскемен маңындағы табиғи биіктік. Панорамалық көрініс пен табиғатты тамашалауға болатын бағыт."
-},
+    {
+      id: 2,
+      name: "Поганка — Комендантка",
+      category: "history",
+      icon: "🌿",
+      lat: 49.944,
+      lng: 82.600,
+      description: "Қаланың тарихи өткенімен байланысты қызықты аумақ."
+    },
 
-{
-id:2,
-name:"Поганка — Комендантка",
-cat:"history",
-lat:50.276,
-lng:57.153,
-icon:"🌿",
-text:"Қала тарихымен байланысты ерекше қалалық орын. Халық арасында «Поганка» атауымен белгілі аумақ."
-},
+    {
+      id: 3,
+      name: "Көпес Рафиковтың үйі",
+      category: "history",
+      icon: "🏛️",
+      lat: 49.950,
+      lng: 82.626,
+      description: "Өскеменнің тарихи сәулетін танытатын көне ғимараттардың бірі."
+    },
 
-{
-id:3,
-name:"Көпес Рафиковтың үйі",
-cat:"history",
-lat:50.286,
-lng:57.168,
-icon:"🏛️",
-text:"Өскеменнің сауда тарихымен байланысты тарихи ғимарат."
-},
+    {
+      id: 4,
+      name: "Ретро-музей",
+      category: "history",
+      icon: "🚗",
+      lat: 49.964,
+      lng: 82.604,
+      description: "Өткен дәуірдегі көлік және тұрмыс мәдениетімен танысуға мүмкіндік беретін орын."
+    },
 
-{
-id:4,
-name:"Ретро-музей",
-cat:"history",
-lat:50.293,
-lng:57.177,
-icon:"🚗",
-text:"Тарихи техника экспозициясымен байланысты ерекше орын."
-},
+    {
+      id: 5,
+      name: "Өскемен бекінісінің қорғаны",
+      category: "history",
+      icon: "🏰",
+      lat: 49.948,
+      lng: 82.622,
+      description: "Қаланың тарихи қалыптасу кезеңін еске түсіретін орын."
+    },
 
-{
-id:5,
-name:"Өскемен бекінісінің тарихи аумағы",
-cat:"history",
-lat:50.282,
-lng:57.164,
-icon:"🏰",
-text:"Қаланың қалыптасу тарихымен байланысты тарихи аумақ."
-},
+    {
+      id: 6,
+      name: "Аблакеткадағы байқау алаңы",
+      category: "nature",
+      icon: "⛰️",
+      lat: 49.915,
+      lng: 82.570,
+      description: "Қаланы биіктен бақылауға және табиғатты тамашалауға болатын орын."
+    },
 
-{
-id:6,
-name:"Аблакеткадағы байқау алаңы",
-cat:"nature",
-lat:50.245,
-lng:57.095,
-icon:"⛰️",
-text:"Аблакетка аумағындағы панорамалық нүкте. Қаланы және табиғи ландшафтты тамашалауға мүмкіндік береді."
-},
+    {
+      id: 7,
+      name: "Этноауыл",
+      category: "culture",
+      icon: "🏡",
+      lat: 49.978,
+      lng: 82.648,
+      description: "Қазақ халқының дәстүрі мен ұлттық мәдениетін таныстыратын мәдени кеңістік."
+    },
 
-{
-id:7,
-name:"Этноауыл",
-cat:"culture",
-lat:50.300,
-lng:57.185,
-icon:"🏡",
-text:"Этнографиялық кеңістік. Дәстүрлі мәдениет пен ұлттық элементтерді таныстыруға арналған орын."
-},
+    {
+      id: 8,
+      name: "Стрелка",
+      category: "nature",
+      icon: "🌊",
+      lat: 49.981,
+      lng: 82.615,
+      description: "Өскемендегі өзендер тоғысатын, серуендеуге қолайлы ерекше орын."
+    },
 
-{
-id:8,
-name:"Стрелка",
-cat:"nature",
-lat:50.300,
-lng:57.200,
-icon:"🌊",
-text:"Өзендер тоғысатын ерекше қалалық кеңістік. Фотоға түсіп, табиғатты тамашалауға ыңғайлы."
-},
+    {
+      id: 9,
+      name: "Меновное көлі — Сол жағалау кешені",
+      category: "nature",
+      icon: "🌊",
+      lat: 50.010,
+      lng: 82.720,
+      description: "Табиғат аясында демалып, қаланың сыртқы көрінісін тамашалауға болатын орын."
+    },
 
-{
-id:9,
-name:"Меновное көлі — Сол жағалау",
-cat:"nature",
-lat:50.315,
-lng:57.215,
-icon:"🌊",
-text:"Демалыс, табиғат және серуендеу бағыттарымен байланысты жағалау аймағы."
-},
+    {
+      id: 10,
+      name: "Шешек тауы",
+      category: "nature",
+      icon: "⛰️",
+      lat: 49.900,
+      lng: 82.670,
+      description: "Табиғи ландшафтымен ерекшеленетін, зерттеуге қызықты орын."
+    }
 
-{
-id:10,
-name:"Шешек тауы",
-cat:"nature",
-lat:50.235,
-lng:57.145,
-icon:"⛰️",
-text:"Өскемен маңындағы табиғи бағыт. Панорамалық көрініс пен серуендеуге арналған орын."
-}
-
-];
-
-
-let markers = [];
+  ];
 
 
-function categoryName(cat){
-
-if(cat==="nature") return "🌿 Табиғат";
-
-if(cat==="history") return "🏛️ Тарих";
-
-return "🏡 Мәдениет";
-
-}
+  let markers = [];
 
 
-function showPlace(p){
+  // Қызыл маркер жасау
+  function createMarker(place, number) {
 
-document.getElementById("info").innerHTML = `
+    const icon = L.divIcon({
+      className: '',
+      html: `
+        <div class="red-marker">
+          <span>${number}</span>
+        </div>
+      `,
+      iconSize: [34, 34],
+      iconAnchor: [17, 34],
+      popupAnchor: [0, -34]
+    });
 
-<span class="tag">
-${p.icon} ${categoryName(p.cat)}
-</span>
-
-<h2>${p.id}. ${p.name}</h2>
-
-<p>${p.text}</p>
-
-<p class="note">
-📍 Картадағы нүкте көрсетілген орынның шамамен орналасуын білдіреді.
-</p>
-
-`;
-
-}
-
-
-function renderPlaces(list){
-
-markers.forEach(marker => map.removeLayer(marker));
-
-markers = [];
-
-list.forEach(p => {
-
-const marker = L.marker([p.lat,p.lng]).addTo(map);
-
-marker.bindPopup(`
-
-<div class="popup-title">
-${p.icon} ${p.name}
-</div>
-
-<div>
-${p.text}
-</div>
-
-<br>
-
-<b>
-${categoryName(p.cat)}
-</b>
-
-`);
-
-marker.on("click",function(){
-
-showPlace(p);
-
-});
-
-markers.push(marker);
-
-});
-
-}
+    const marker = L.marker(
+      [place.lat, place.lng],
+      { icon: icon }
+    );
 
 
-function filterPlaces(cat,button){
-
-document
-.querySelectorAll(".filters button")
-.forEach(b => b.classList.remove("active"));
-
-button.classList.add("active");
-
-if(cat==="all"){
-
-renderPlaces(places);
-
-}else{
-
-renderPlaces(
-places.filter(p => p.cat===cat)
-);
-
-}
-
-}
+    marker.bindTooltip(
+      `${place.icon} ${place.name}`,
+      {
+        permanent: true,
+        direction: 'top',
+        offset: [0, -28]
+      }
+    );
 
 
-renderPlaces(places);
+    marker.bindPopup(`
+      <div>
+        <div class="popup-title">
+          ${place.icon} ${place.name}
+        </div>
+
+        <div class="popup-category">
+          ${getCategoryName(place.category)}
+        </div>
+
+        <div class="popup-text">
+          ${place.description}
+        </div>
+
+        <br>
+
+        <small>
+          📍 Жобалық картадағы шамамен орналасуы
+        </small>
+      </div>
+    `);
+
+    return marker;
+  }
+
+
+  function getCategoryName(category) {
+
+    if (category === "nature") {
+      return "🌿 Табиғат";
+    }
+
+    if (category === "history") {
+      return "🏛️ Тарих";
+    }
+
+    if (category === "culture") {
+      return "🏡 Мәдениет";
+    }
+
+    return "Барлығы";
+  }
+
+
+  // Барлық маркерлерді көрсету
+  function showPlaces(list) {
+
+    markers.forEach(marker => {
+      map.removeLayer(marker);
+    });
+
+    markers = [];
+
+    list.forEach((place, index) => {
+
+      const marker = createMarker(place, place.id);
+
+      marker.addTo(map);
+
+      markers.push(marker);
+
+    });
+  }
+
+
+  // Категория бойынша сүзу
+  function filterPlaces(category, button) {
+
+    document.querySelectorAll("button").forEach(btn => {
+      btn.classList.remove("active");
+    });
+
+    button.classList.add("active");
+
+
+    if (category === "all") {
+      showPlaces(places);
+    } else {
+
+      const filtered = places.filter(
+        place => place.category === category
+      );
+
+      showPlaces(filtered);
+    }
+  }
+
+
+  // Алғашқыда 10 орынды көрсету
+  showPlaces(places);
 
 </script>
 
