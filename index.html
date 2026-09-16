@@ -443,5 +443,41 @@ const places = [
 
 </script>
 
+<div style="
+  background:white;
+  padding:25px 15px;
+  text-align:center;
+  border-top:1px solid #ddd;
+">
+
+  <h2 style="color:#355c4a; margin-bottom:8px;">
+    📱 Интерактивті картаға өту
+  </h2>
+
+  <p style="margin-bottom:15px;">
+    QR-кодты сканерлеп, Өскеменнің жасырын туристік орындарын зерттеңіз
+  </p>
+
+  <div id="qrcode"
+       style="display:flex; justify-content:center; margin:15px;">
+  </div>
+
+  <p style="font-size:13px; color:#666;">
+    «Менің қаламдағы жасырын туристік орындар» жобасы
+  </p>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<script>
+  new QRCode(document.getElementById("qrcode"), {
+    text: "https://arystanbekkyzyaauzan-eng.github.io/oskemen-tourism-map/",
+    width: 180,
+    height: 180,
+    correctLevel: QRCode.CorrectLevel.H
+  });
+</script>
+
 </body>
 </html>
