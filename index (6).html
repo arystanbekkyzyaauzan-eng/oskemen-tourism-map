@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Өскемен және Шығыс Қазақстанның туристік орындары</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+*{box-sizing:border-box}
+:root{--green:#355c4a;--green2:#668b72;--pale:#e8eee9;--cream:#f4f1ea;--ink:#263238}
+body{margin:0;font-family:Arial,sans-serif;background:var(--cream);color:var(--ink)}
+header{background:linear-gradient(135deg,var(--green),var(--green2));color:white;padding:28px 18px;text-align:center}
+header h1{margin:0 0 8px;font-size:clamp(23px,4vw,34px)}
+header p{margin:0;font-size:16px;line-height:1.5}
+.section-tabs{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;padding:16px;background:#fff;box-shadow:0 2px 8px #00000012}
+button{border:0;padding:11px 16px;margin:3px;border-radius:22px;cursor:pointer;background:var(--pale);color:#274536;font-size:14px;font-weight:600}
+button:hover{background:#cbdccf}
+button.active,.primary{background:var(--green);color:white}
+.intro{max-width:1100px;margin:18px auto 0;padding:0 16px;line-height:1.6}
+#map{width:100%;height:560px;margin-top:16px;background:#e7e7e7}
+.map-heading{text-align:center;margin:18px 12px 0;color:var(--green)}
+.legend{text-align:center;padding:8px;color:#5c6860;font-size:13px}
+.cards-wrap{max-width:1200px;margin:0 auto;padding:24px 16px 36px}
+.cards-wrap h2{text-align:center;color:var(--green);margin:0 0 18px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
+.place-card{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 16px #00000010;border:1px solid #e5e8e4;display:flex;flex-direction:column}
+.place-visual{min-height:135px;background:linear-gradient(135deg,#d9e8d8,#b7cbb9);display:flex;align-items:center;justify-content:center;font-size:56px}
+.place-body{padding:17px;display:flex;flex-direction:column;gap:10px;flex:1}
+.place-body h3{margin:0;color:var(--green);font-size:20px}
+.place-meta{font-size:12px;color:#5e6e62;background:var(--pale);padding:5px 9px;border-radius:10px;align-self:flex-start}
+.place-body p{margin:0;line-height:1.55;font-size:14px}
+.place-body strong{color:#344d3d}
+.card-actions{margin-top:auto;padding-top:8px;display:flex;flex-wrap:wrap;gap:6px}
+.card-actions button{margin:0}
+.audio-panel{background:#f6f8f5;border-radius:10px;padding:10px;margin-top:2px}
+.audio-panel p{font-size:13px;margin:0 0 8px}
+.audio-panel button{font-size:13px;padding:8px 12px}
+.small-note{font-size:12px!important;color:#68736b}
+footer{text-align:center;padding:20px;background:var(--green);color:white;font-size:14px;line-height:1.6}
+#qrcode{display:flex;justify-content:center;margin:16px}
+.leaflet-tooltip{font-weight:bold;font-size:13px;padding:6px 9px;border-radius:8px}
+.red-marker{background:#d62828;color:white;width:34px;height:34px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid white;box-shadow:0 2px 7px #0006;display:flex;align-items:center;justify-content:center;font-weight:bold}
+.red-marker span{transform:rotate(45deg)}
+.popup-title{font-size:17px;font-weight:bold;color:var(--green);margin-bottom:7px}
+.popup-text{line-height:1.5}
+.hidden{display:none!important}
+@media(max-width:600px){#map{height:440px}.section-tabs{gap:4px}.section-tabs button{flex:1 1 145px}.cards-wrap{padding:20px 12px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>📍 Өскемен және Шығыс Қазақстанның туристік орындары</h1>
+  <p>Туған өлкенің табиғатын, тарихын және ерекше мекендерін интерактивті карта арқылы зерттейік!</p>
+</header>
+
+<nav class="section-tabs" aria-label="Аймақты таңдау">
+  <button id="cityTab" class="active" onclick="switchSection('city',this)">🏙️ Өскемен қаласы</button>
+  <button id="regionTab" onclick="switchSection('region',this)">🏔️ Шығыс Қазақстан облысы</button>
+</nav>
+<div class="intro" id="introText">Өскемен қаласындағы тарихи, табиғи және мәдени орындарды картадан таңдаңыз. Маркерді басқанда нысан туралы қысқаша ақпарат ашылады.</div>
+<h2 class="map-heading" id="mapHeading">Өскеменнің жасырын туристік орындары</h2>
+<div id="map" role="application" aria-label="Туристік орындардың интерактивті картасы"></div>
+<div class="legend" id="mapLegend">Картадағы маркерді немесе төмендегі карточканы басып, орын туралы ақпарат алыңыз.</div>
+
+<section class="cards-wrap">
+  <h2 id="cardsHeading">Қала нысандары</h2>
+  <div id="cards" class="cards"></div>
+</section>
+
+<section style="background:white;padding:24px 15px;text-align:center;border-top:1px solid #ddd">
+  <h2 style="color:#355c4a;margin-bottom:8px">📱 Интерактивті картаға өту</h2>
+  <p>QR-кодты сканерлеп, туристік орындарды зерттеңіз.</p>
+  <div id="qrcode"></div>
+  <p style="font-size:13px;color:#666">«Менің қаламдағы және өлкемдегі туристік орындар» жобасы</p>
+</section>
+<footer>© 2026 «Менің қаламдағы және өлкемдегі туристік орындар» жобасы<br>Картадағы кейбір табиғи нысандардың координаттары бағдарлық сипатта берілген. Сапар алдында жол мен кіру тәртібін нақтылап алыңыз.</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+const cityPlaces = [
+{id:1,name:"Орёл тауы",category:"nature",icon:"⛰️",lat:49.991,lng:82.580,address:"Өскемен қаласы маңы",feature:"Табиғи ландшафты және биіктіктен көрінетін көрінісімен қызықты.",history:"Тау аймағы табиғатты тамашалауға және серуендеуге қолайлы.",fact:"Картадағы орналасуы жобалық түрде көрсетілген."},
+{id:2,name:"Поганка — Комендантка",category:"history",icon:"🌿",lat:49.944,lng:82.600,address:"Өскемен қаласы маңы",feature:"Қаланың тарихи өткенімен байланысты жергілікті атаулар.",history:"Бұл атаулар Өскеменнің тарихи топонимиясымен байланысты.",fact:"Нақты мекенжайын сапар алдында нақтылаған дұрыс."},
+{id:3,name:"Көпес Рафиковтың үйі",category:"history",icon:"🏛️",lat:49.950,lng:82.626,address:"М. Горький көшесі, 50",feature:"Тарихи және мәдени сәулет ескерткіші.",history:"XIX ғасырдың соңында Ахтам Рафиков салдырған екі қабатты үйде дүкен және көпестің отбасы орналасқан.",fact:"Ғимарат 1984 жылы мемлекеттік қорғауға алынғаны көрсетіледі."},
+{id:4,name:"Ретро-музей",category:"history",icon:"🚗",lat:49.964,lng:82.604,address:"Сол жағалау саябағы аумағы",feature:"Өткен ғасырдағы тарихи техникалар экспозициясы.",history:"Музей туралы деректер мен жұмыс уақытын барар алдында тексеріңіз.",fact:"Экспозицияда тарихи техника үлгілерін көруге болады."},
+{id:5,name:"Өскемен бекінісінің орны",category:"history",icon:"🏰",lat:49.948,lng:82.622,address:"Өскемен қаласының тарихи орталығы",feature:"Қаланың пайда болу тарихымен байланысты тарихи орын.",history:"Өскемен бекінісі 1720 жылы негізі қаланған.",fact:"Бұл нүкте тарихи орталықты бағдарлау үшін берілген."},
+{id:6,name:"Аблакеткадағы байқау алаңы",category:"nature",icon:"⛰️",lat:49.915,lng:82.690,address:"Аблакетка ауданы, Өскемен маңы",feature:"Қаланың табиғи көрінісін биіктен бақылауға мүмкіндік беретін орын.",history:"Аблакетка атауы Өскемен маңындағы тау және елді мекен атауларында кездеседі.",fact:"Жолға шығар алдында қауіпсіз бағытты таңдаңыз."},
+{id:7,name:"Этноауыл",category:"culture",icon:"🏡",lat:49.978,lng:82.648,address:"Қаныш Сәтпаев даңғылы маңы",feature:"Ұлттық мәдениет пен дәстүрді таныстыратын этнографиялық кеңістік.",history:"Этнографиялық нысандар Шығыс Қазақстанның дәстүрлі тұрмысын көрсетуге бағытталған.",fact:"Бару уақыты мен кіру тәртібін алдын ала нақтылаңыз."},
+{id:8,name:"Стрелка",category:"nature",icon:"🌊",lat:49.981,lng:82.615,address:"Өскемен қаласы, өзендер тоғысатын аумақ",feature:"Өзен жағасындағы ерекше табиғи-ландшафтық орын.",history:"Стрелка — Өскеменнің танымал географиялық орындарының бірі.",fact:"Қала тұрғындары серуендейтін орын ретінде белгілі."},
+{id:9,name:"Меновное көлі — Сол жағалау маңы",category:"nature",icon:"🌊",lat:50.010,lng:82.720,address:"Өскеменнің сол жағалауы маңы",feature:"Табиғат аясында демалуға арналған аумақ.",history:"Сол жағалау аумағында табиғи және мәдени нысандар бар.",fact:"Нақты демалыс аймағын картадан алдын ала тексеріңіз."},
+{id:10,name:"Шешек тауы",category:"nature",icon:"⛰️",lat:49.900,lng:82.670,address:"Өскемен қаласы маңы",feature:"Табиғи ландшафтымен ерекшеленетін тау аймағы.",history:"Өскемен маңындағы табиғи аумақтардың бірі ретінде жобалық картаға енгізілген.",fact:"Координаты бағдарлық сипатта берілген."}
+];
+
+const regionPlaces = [
+{id:101,name:"Қиын-Керіш шатқалы",category:"nature",icon:"🏜️",lat:48.160,lng:84.500,address:"Марқакөл ауданына баратын бағыттағы Қиын-Керіш жазығы, Шығыс Қазақстан",feature:"Қызыл, қызғылт сары және ақшыл сазды бедерлері бар ерекше шөлейт ландшафт.",history:"Жер бедерінің түрлі түсті қабаттары геологиялық үдерістердің ізін көрсетеді.",best:"Жылы маусымда, құрғақ ауа райында барған қолайлы; аптап пен қатты желді ескеріңіз.",tip:"Су, бас киім және жабық аяқ киім алыңыз. Қоршаған бедерді бүлдірмеңіз; жол мен көлік мүмкіндігін сапар алдында нақтылаңыз.",feature2:"Түсті сазды төбелер мен ерекше геологиялық пішіндер.",latlngNote:"Координат бағдарлық сипатта берілген.",narration:"Қиын-Керіш — Шығыс Қазақстандағы ерекше түсті сазды бедерімен танымал табиғи мекен. Қызыл, қызғылт сары және ақшыл реңктер ландшафтқа өзгеше көрініс береді. Бұл жер геологияны, табиғи үдерістерді және шөлейт экожүйелерді бақылауға мүмкіндік береді. Сапарға шығар алдында ауа райын, жол жағдайын және жергілікті шектеулерді тексеріңіз. Табиғи бедерді сақтап, қоқыс қалдырмаңыз."},
+{id:102,name:"Марқакөл көлі",category:"nature",icon:"🏞️",lat:48.750,lng:85.750,address:"Марқакөл ойысы, Оңтүстік Алтай",feature:"Таулармен қоршалған биік таулы тұщы көл; айналасы табиғи байлығымен ерекшеленеді.",history:"Көл мен оның маңы ерекше экожүйе ретінде қорғалатын табиғи аумақпен байланысты.",best:"Көбіне жаздың жылы кезеңі саяхатқа ыңғайлы, бірақ ауа райы тез өзгеруі мүмкін.",tip:"Қорғалатын аумақтың ережесін алдын ала қараңыз; балық аулау, от жағу және қозғалыс тәртібіне қатысты талаптарды сақтаңыз.",narration:"Марқакөл көлі Оңтүстік Алтайдың көрікті табиғи нысандарының бірі. Көл таулардың арасында орналасып, айналасындағы орман, өзен және жануарлар дүниесімен ерекшеленеді. Мұнда табиғатты бақылау кезінде тыныштық сақтап, су мен жағалауды ластамау маңызды. Егер қорғалатын аумаққа кіретін болсаңыз, рұқсат пен қозғалыс ережелерін алдын ала нақтылаңыз."},
+{id:103,name:"Берел қорғандары",category:"history",icon:"🏺",lat:49.330,lng:86.430,address:"Қатонқарағай ауданы, Берел ауылы маңы",feature:"Ежелгі көшпелілер тарихын танытатын археологиялық кешен.",history:"Берел қорғандары Алтай өңірінің ерте темір дәуірі мәдениетін зерттеуде маңызды орын алады.",best:"Жол мен музейдің жұмыс кестесіне қарай жылы маусымда барған ыңғайлы.",tip:"Археологиялық нысандарға шықпаңыз және заттарды қозғамаңыз; экскурсия мен кіру тәртібін алдын ала нақтылаңыз.",narration:"Берел қорғандары — Алтайдағы көне көшпелілердің тарихын танытатын археологиялық кешен. Қорғандардан табылған олжалар ежелгі қоғамның дүниетанымы, қолөнері және жерлеу дәстүрлері туралы мәлімет береді. Бұл жерде археологиялық мұраны құрметтеу өте маңызды: қорғандарға шықпаңыз, заттарға тимеңіз және белгіленген жолмен жүріңіз."},
+{id:104,name:"Көккөл сарқырамасы",category:"nature",icon:"💧",lat:49.470,lng:86.450,address:"Қатонқарағай ұлттық паркінің таулы бөлігі",feature:"Алтайдың биік таулы табиғатындағы сарқырама.",history:"Сарқырама айналасы таулы ландшафттарымен және жаяу бағыттарымен танымал.",best:"Әдетте жазғы маусымда жету мүмкіндігі жоғарырақ; ауа райы мен соқпақ жағдайын тексеріңіз.",tip:"Бұл — қашық әрі таулы бағыт болуы мүмкін. Жергілікті гид, рұқсат және қауіпсіз маршрут мәселесін алдын ала анықтаңыз.",narration:"Көккөл сарқырамасы — Алтайдың таулы табиғатын танытатын көрікті нысандардың бірі. Сарқырамаға апаратын бағыттың қиындығы мен жол жағдайы маусымға қарай өзгеруі мүмкін. Сондықтан сапарды жоспарлағанда жергілікті мамандардан ақпарат алып, ауа райын тексеріңіз. Тауда жалғыз жүрмей, қауіпсіздік ережелерін сақтаңыз."},
+{id:105,name:"Рахман қайнары",category:"nature",icon:"♨️",lat:49.410,lng:86.500,address:"Қатонқарағай ауданы, Оңтүстік Алтай",feature:"Тау арасындағы табиғи ыстық минералды бұлақтарымен танымал аймақ.",history:"Рахман қайнары өңірдің табиғи-сауықтыру орындарының бірі ретінде белгілі.",best:"Жылы маусымда жолға шығу ыңғайлырақ болуы мүмкін; қызмет көрсету орнының маусымдық жұмысын тексеріңіз.",tip:"Емдік әсер туралы медициналық кеңес ретінде қабылдамаңыз; суға түсу және демалыс қызметтерінің қолжетімділігін алдын ала анықтаңыз.",narration:"Рахман қайнары — Оңтүстік Алтайдағы табиғи минералды бұлақтарымен белгілі орын. Оны қоршаған таулы ландшафт саяхатшыларды табиғатты тамашалауға шақырады. Демалысты жоспарламас бұрын жолдың ашықтығын, орналастыру мүмкіндігін және қызметтердің жұмыс кестесін нақтылаңыз. Минералды су мен ыстық бұлақтарды пайдалану кезінде жеке денсаулық жағдайыңызды ескеріп, қауіпсіздік талаптарын сақтаңыз."},
+{id:106,name:"Сібе көлдері",category:"nature",icon:"💙",lat:49.520,lng:82.950,address:"Ұлан ауданы, Өскеменнен оңтүстік-батыс бағыт",feature:"Тауаралық ойыстарда орналасқан бірнеше көлден тұратын табиғи кешен.",history:"Сібе көлдері демалыс, табиғатты бақылау және жаяу серуендеу үшін танымал.",best:"Жаз мезгілі жағажайлық демалыс пен серуенге жиі қолайлы.",tip:"Суға түсерде қауіпсіз жерді таңдаңыз; қоқысты жинап әкетіп, от жағуға рұқсат етілген орындарды ғана пайдаланыңыз.",narration:"Сібе көлдері — Шығыс Қазақстандағы тауаралық көлдер жүйесі. Көлдер мөлдір суымен және айналасындағы жартасты-таулы көріністерімен ерекшеленеді. Жазда мұнда демалуға және табиғатты бақылауға болады. Суға түскенде қауіпсіздікке мән беріп, жағалауды таза ұстаңыз және өрт қауіпсіздігі ережелерін сақтаңыз."},
+{id:107,name:"Бұқтырма су қоймасы",category:"nature",icon:"🌊",lat:49.650,lng:83.550,address:"Ертіс аңғары, Шығыс Қазақстан",feature:"Қазақстандағы ірі су қоймаларының бірі; жағалауы мен су айдыны кең көрініс береді.",history:"Су қоймасы Ертіс өзеніндегі гидротехникалық жүйенің бөлігі болып табылады.",best:"Жазда жағалау демалысына қолайлы кезең болуы мүмкін.",tip:"Суға түсуге арнайы рұқсат етілген және қауіпсіз орындарды таңдаңыз; қайықпен жүзгенде құтқару кеудешесін киіңіз.",narration:"Бұқтырма су қоймасы — Ертіс өзені алабындағы ірі су айдыны. Кең су беті мен жағалаудағы ландшафттар бұл аумақты демалыс пен табиғатты бақылауға тартымды етеді. Су қоймасында ауа райы мен толқын жағдайы өзгеруі мүмкін. Қауіпсіз жағажайларды пайдаланып, суда құтқару кеудешесін киіп, табиғи ортаны таза ұстаңыз."},
+{id:108,name:"Батыс Алтай мемлекеттік табиғи қорығы",category:"nature",icon:"🌲",lat:50.300,lng:83.900,address:"Риддер қаласы маңындағы Алтайдың орманды-таулы аумағы",feature:"Тайга ормандары, тау экожүйелері және биоалуантүрлілікті қорғауға арналған табиғи аумақ.",history:"Қорықтың негізгі міндеті — табиғи кешендер мен сирек кездесетін тіршілік орталарын сақтау.",best:"Маусымға қарай ауа райы мен кіру тәртібі өзгереді; сапарды алдын ала келісу қажет.",tip:"Қорыққа кіру ережесін және рұқсат тәртібін ресми дереккөзден нақтылаңыз. Белгіленген бағыттан шықпаңыз.",narration:"Батыс Алтай мемлекеттік табиғи қорығы Алтайдың орманды-таулы экожүйелерін сақтауға арналған. Мұнда тайга, тау өзендері және алуан түрлі тіршілік ортасы кездеседі. Қорық — ең алдымен табиғатты қорғау аумағы, сондықтан туристік кіру тәртібі шектеулі болуы мүмкін. Сапар алдында ресми әкімшілікпен байланысып, рұқсат пен маршрут талаптарын біліп алыңыз."},
+{id:109,name:"Риддер қаласы",category:"culture",icon:"🏘️",lat:50.350,lng:83.510,address:"Риддер қаласы, Шығыс Қазақстан облысы",feature:"Алтайдың таулы табиғатына жақын орналасқан, тау-кен тарихымен танымал қала.",history:"Қала тарихы өңірдің кен өндіру және өнеркәсіп дамуымен тығыз байланысты.",best:"Қалаға жыл бойы баруға болады, ал таулы бағыттар үшін маусым мен ауа райын ескеріңіз.",tip:"Қала маңындағы қорықтар мен таулы маршруттарға бармас бұрын кіру тәртібі мен жол жағдайын тексеріңіз.",narration:"Риддер — Алтайдың таулы табиғатына жақын орналасқан қала. Оның тарихы кен өндірумен және өнеркәсіптің дамуымен тығыз байланысты. Қала табиғатты сүйетін саяхатшылар үшін де бастапқы нүкте бола алады. Дегенмен, қала маңындағы таулы бағыттар мен қорғалатын аумақтарға барар алдында ауа райын, жол жағдайын және кіру ережелерін анықтап алыңыз."}
+];
+
+let currentSection='city';
+let markers=[];
+let currentPlaces=cityPlaces;
+const map=L.map('map').setView([49.9483,82.6279],12);
+// Нақты карта қабаты: Esri көшелер картасы. Бұрынғы OSM тақтайшалары 403 бергендіктен ауыстырылды.
+const primaryTiles = L.tileLayer(
+  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+  { attribution: 'Tiles &copy; Esri', maxZoom: 19, crossOrigin: true }
+).addTo(map);
+
+// Егер Esri картасы ашылмаса, CARTO қабатын қосып көреді.
+let fallbackLayer = null;
+let primaryTileErrors = 0;
+primaryTiles.on('tileerror', function () {
+  primaryTileErrors++;
+  if (primaryTileErrors >= 3 && !fallbackLayer) {
+    fallbackLayer = L.tileLayer(
+      'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+      { attribution: '&copy; OpenStreetMap contributors &copy; CARTO', subdomains: 'abcd', maxZoom: 20 }
+    ).addTo(map);
+  }
+});
+
+// Картаның контейнер өлшемі GitHub Pages ашылғанда дұрыс есептелуі үшін
+setTimeout(function () { map.invalidateSize(true); }, 250);
+
+// Карта тақтайшалары интернеттен жүктеледі. Егер провайдерлердің екеуі де бұғатталса,
+ // картада белгішелер көрінуі мүмкін, бірақ фон картасы шықпайды.
+function categoryName(c){return c==='nature'?'🌿 Табиғат':c==='history'?'🏛️ Тарих':'🏡 Мәдениет'}
+function mapLink(p){return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(p.name+' '+p.address)}
+function routeLink(p){return 'https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(p.name+' '+p.address)}
+function markerIcon(number){return L.divIcon({className:'',html:`<div class="red-marker"><span>${number}</span></div>`,iconSize:[34,34],iconAnchor:[17,34],popupAnchor:[0,-34]})}
+function makePopup(p){
+ const extra=currentSection==='region'?`<p><b>🗓️ Қашан барған дұрыс?</b><br>${p.best}</p><p><b>🎒 Туристке кеңес</b><br>${p.tip}</p>`:`<p><b>🕰️ Қысқаша тарихы:</b><br>${p.history}</p><p><b>💡 Қызықты факт:</b><br>${p.fact}</p>`;
+ return `<div style="min-width:220px;max-width:300px;font-family:Arial,sans-serif" class="popup-text"><div class="popup-title">${p.icon} ${p.name}</div><div style="background:#e8eee9;padding:5px 8px;border-radius:8px;margin-bottom:8px">${categoryName(p.category)}</div><p><b>📍 Орналасуы:</b><br>${p.address}</p><p><b>⭐ Несімен ерекше?</b><br>${p.feature}</p>${extra}<p><a target="_blank" rel="noopener" href="${mapLink(p)}">Картадан ашу</a></p></div>`;
+}
+function renderMarkers(){
+ markers.forEach(m=>map.removeLayer(m));markers=[];
+ currentPlaces.forEach((p,i)=>{
+   const m=L.marker([p.lat,p.lng],{icon:markerIcon(i+1)}).addTo(map);
+   m.bindTooltip(`${p.icon} ${p.name}`,{direction:'top',offset:[0,-28]});
+   m.bindPopup(makePopup(p));
+   markers.push(m);
+ });
+ // Өскемен мен облыс үшін масштабты бөлек орнатамыз.
+ // Облыстық нысандар кең аумаққа таралғандықтан, карта алдымен ШҚО орталығына ауысады.
+ if(currentSection==='city'){
+   map.setView([49.9483,82.6279],12);
+ }else{
+   map.setView([49.35,84.55],6);
+   const regionBounds=L.latLngBounds(currentPlaces.map(p=>[p.lat,p.lng]));
+   setTimeout(function(){
+     map.invalidateSize(true);
+     map.fitBounds(regionBounds,{padding:[35,35],maxZoom:7});
+   },180);
+ }
+ setTimeout(function(){map.invalidateSize(true);},100);
+}
+function speakPlace(id){
+ const p=currentPlaces.find(x=>x.id===id);if(!p||!p.narration)return;
+ if(!('speechSynthesis' in window)){alert('Бұл браузерде мәтінді дыбыстау мүмкіндігі қолжетімсіз.');return}
+ window.speechSynthesis.cancel();
+ const utterance=new SpeechSynthesisUtterance(p.narration);
+ utterance.lang='kk-KZ';utterance.rate=0.88;utterance.pitch=1;
+ window.speechSynthesis.speak(utterance);
+}
+function stopAudio(){if('speechSynthesis' in window)window.speechSynthesis.cancel()}
+function renderCards(){
+ const root=document.getElementById('cards');root.innerHTML='';
+ currentPlaces.forEach((p,i)=>{
+  const region=currentSection==='region';
+  const extra=region?`<p><strong>🗓️ Қашан барған дұрыс?</strong><br>${p.best}</p><p><strong>🎒 Туристке кеңес</strong><br>${p.tip}</p>`:`<p><strong>🕰️ Қысқаша тарихы:</strong><br>${p.history}</p><p><strong>💡 Қызықты факт:</strong><br>${p.fact}</p>`;
+  const card=document.createElement('article');card.className='place-card';
+  card.innerHTML=`<div class="place-visual" aria-hidden="true">${p.icon}</div><div class="place-body"><h3>${i+1}. ${p.name}</h3><span class="place-meta">${categoryName(p.category)} · ${p.address}</span><p><strong>⭐ Несімен ерекше?</strong><br>${p.feature}</p>${extra}
+  ${region?`<div class="audio-panel"><p><strong>🎧 Аудиогид</strong><br>Орын туралы қазақша мәтінді тыңдаңыз.</p><button type="button" onclick="speakPlace(${p.id})">▶ Тыңдау</button><button type="button" onclick="stopAudio()">⏸ Тоқтату</button><p class="small-note">Дыбыстау браузердің қолжетімді қазақша дауыс мүмкіндігіне байланысты.</p></div>`:''}
+  <div class="card-actions"><button type="button" onclick="focusPlace(${p.id})">📍 Картада көрсету</button><button type="button" onclick="window.open('${routeLink(p)}','_blank','noopener')">🧭 Бағытты ашу</button></div></div>`;
+  root.appendChild(card);
+ });
+}
+function focusPlace(id){const p=currentPlaces.find(x=>x.id===id);const i=currentPlaces.findIndex(x=>x.id===id);if(!p)return;map.setView([p.lat,p.lng],currentSection==='region'?9:14);markers[i]?.openPopup();document.getElementById('map').scrollIntoView({behavior:'smooth',block:'start'})}
+function switchSection(section,button){
+ stopAudio();currentSection=section;currentPlaces=section==='city'?cityPlaces:regionPlaces;
+ document.querySelectorAll('.section-tabs button').forEach(b=>b.classList.remove('active'));button.classList.add('active');
+ if(section==='city'){
+  document.getElementById('introText').textContent='Өскемен қаласындағы тарихи, табиғи және мәдени орындарды картадан таңдаңыз. Маркерді басқанда нысан туралы қысқаша ақпарат ашылады.';
+  document.getElementById('mapHeading').textContent='Өскеменнің жасырын туристік орындары';
+  document.getElementById('cardsHeading').textContent='Қала нысандары';
+  document.getElementById('mapLegend').textContent='Картадағы маркерді немесе төмендегі карточканы басып, орын туралы ақпарат алыңыз.';
+ }else{
+  document.getElementById('introText').textContent='Шығыс Қазақстанның ерекше табиғи, тарихи және мәдени орындарын зерттеңіз. Әр карточкада қысқаша таныстырылым, сапарға кеңес, карта және бағыт сілтемелері бар. Координаттар бағдарлық болуы мүмкін.';
+  document.getElementById('mapHeading').textContent='Шығыс Қазақстанның ерекше туристік орындары';
+  document.getElementById('cardsHeading').textContent='Өлкенің 9 туристік орны';
+  document.getElementById('mapLegend').textContent='Нүктелер облыстың әр аймағына таралған. Нақты жол бағытын Google Maps арқылы ашып, жол жағдайын алдын ала тексеріңіз.';
+ }
+ renderMarkers();renderCards();setTimeout(()=>map.invalidateSize(true),250);
+}
+renderMarkers();renderCards();
+if(window.QRCode){new QRCode(document.getElementById('qrcode'),{text:'https://arystanbekkyzyaauzan-eng.github.io/oskemen-tourism-map/',width:180,height:180,correctLevel:QRCode.CorrectLevel.H})}
+</script>
+</body>
+</html>
